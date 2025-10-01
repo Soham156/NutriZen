@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import Navbar from "@/components/Navbar";
+import DashboardLayout from "@/components/DashboardLayout";
 import {
   Calendar,
   Droplets,
@@ -46,12 +46,11 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="container mx-auto px-4 md:px-6 pt-24 pb-16">
+    <DashboardLayout>
+      <main className="container mx-auto px-4 md:px-6 pt-6 pb-16">
         {/* Header */}
         <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Welcome back, Sarah! 👋</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Welcome back, Dadu! 👋</h1>
           <p className="text-muted-foreground">Here's your wellness overview for today</p>
         </div>
 
@@ -213,46 +212,40 @@ const Dashboard = () => {
                 <div className="grid grid-cols-3 gap-3">
                   <button
                     onClick={() => setMood("happy")}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      mood === "happy"
+                    className={`p-4 rounded-xl border-2 transition-all ${mood === "happy"
                         ? "border-primary bg-primary/10"
                         : "border-border hover:border-primary/50"
-                    }`}
+                      }`}
                   >
                     <Smile
-                      className={`w-8 h-8 mx-auto mb-2 ${
-                        mood === "happy" ? "text-primary" : "text-muted-foreground"
-                      }`}
+                      className={`w-8 h-8 mx-auto mb-2 ${mood === "happy" ? "text-primary" : "text-muted-foreground"
+                        }`}
                     />
                     <div className="text-xs font-medium text-center">Great</div>
                   </button>
                   <button
                     onClick={() => setMood("neutral")}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      mood === "neutral"
+                    className={`p-4 rounded-xl border-2 transition-all ${mood === "neutral"
                         ? "border-accent bg-accent/10"
                         : "border-border hover:border-accent/50"
-                    }`}
+                      }`}
                   >
                     <Meh
-                      className={`w-8 h-8 mx-auto mb-2 ${
-                        mood === "neutral" ? "text-accent" : "text-muted-foreground"
-                      }`}
+                      className={`w-8 h-8 mx-auto mb-2 ${mood === "neutral" ? "text-accent" : "text-muted-foreground"
+                        }`}
                     />
                     <div className="text-xs font-medium text-center">Okay</div>
                   </button>
                   <button
                     onClick={() => setMood("sad")}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      mood === "sad"
+                    className={`p-4 rounded-xl border-2 transition-all ${mood === "sad"
                         ? "border-highlight bg-highlight/10"
                         : "border-border hover:border-highlight/50"
-                    }`}
+                      }`}
                   >
                     <Frown
-                      className={`w-8 h-8 mx-auto mb-2 ${
-                        mood === "sad" ? "text-highlight" : "text-muted-foreground"
-                      }`}
+                      className={`w-8 h-8 mx-auto mb-2 ${mood === "sad" ? "text-highlight" : "text-muted-foreground"
+                        }`}
                     />
                     <div className="text-xs font-medium text-center">Low</div>
                   </button>
@@ -279,11 +272,10 @@ const Dashboard = () => {
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((glass) => (
                     <button
                       key={glass}
-                      className={`aspect-square rounded-lg border-2 flex items-center justify-center transition-all ${
-                        glass <= 7
+                      className={`aspect-square rounded-lg border-2 flex items-center justify-center transition-all ${glass <= 7
                           ? "border-accent bg-accent/20 hover:bg-accent/30"
                           : "border-border hover:border-accent/50"
-                      }`}
+                        }`}
                     >
                       <Droplets
                         className={`w-5 h-5 ${glass <= 7 ? "text-accent" : "text-muted-foreground"}`}
@@ -321,7 +313,7 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
-    </div>
+    </DashboardLayout>
   );
 };
 

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import Navbar from "@/components/Navbar";
+import DashboardLayout from "@/components/DashboardLayout";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { TrendingUp, Activity, Heart, Brain, Calendar } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,9 +23,8 @@ const macroTrendsData = [
 
 const Analytics = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="container mx-auto px-4 md:px-6 pt-24 pb-16">
+    <DashboardLayout>
+      <main className="container mx-auto px-4 md:px-6 pt-6 pb-16">
         {/* Header */}
         <div className="mb-8 animate-fade-in">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Your Wellness Analytics</h1>
@@ -229,9 +228,8 @@ const Analytics = () => {
                       <div key={day} className="text-center">
                         <div className="text-xs text-muted-foreground mb-2">{day}</div>
                         <div
-                          className={`aspect-square rounded-lg ${color} flex items-center justify-center text-sm font-bold ${
-                            score >= 80 ? "text-primary-foreground" : "text-muted-foreground"
-                          }`}
+                          className={`aspect-square rounded-lg ${color} flex items-center justify-center text-sm font-bold ${score >= 80 ? "text-primary-foreground" : "text-muted-foreground"
+                            }`}
                         >
                           {score}%
                         </div>
@@ -258,7 +256,7 @@ const Analytics = () => {
           </TabsContent>
         </Tabs>
       </main>
-    </div>
+    </DashboardLayout>
   );
 };
 

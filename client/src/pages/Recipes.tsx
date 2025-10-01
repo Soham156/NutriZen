@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Navbar from "@/components/Navbar";
+import DashboardLayout from "@/components/DashboardLayout";
 import { Search, Heart, Clock, Flame, Users, Filter, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
@@ -109,9 +109,8 @@ const Recipes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="container mx-auto px-4 md:px-6 pt-24 pb-16">
+    <DashboardLayout>
+      <main className="container mx-auto px-4 md:px-6 pt-6 pb-16">
         {/* Header */}
         <div className="mb-8 animate-fade-in">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Community Recipes</h1>
@@ -171,11 +170,10 @@ const Recipes = () => {
                   className="absolute top-3 right-3 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
                 >
                   <Heart
-                    className={`w-5 h-5 ${
-                      likedRecipes.includes(recipe.id)
+                    className={`w-5 h-5 ${likedRecipes.includes(recipe.id)
                         ? "fill-highlight text-highlight"
                         : "text-muted-foreground"
-                    } transition-colors`}
+                      } transition-colors`}
                   />
                 </button>
               </div>
@@ -230,7 +228,7 @@ const Recipes = () => {
           </Button>
         </div>
       </main>
-    </div>
+    </DashboardLayout>
   );
 };
 

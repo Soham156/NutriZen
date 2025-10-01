@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Navbar from "@/components/Navbar";
+import DashboardLayout from "@/components/DashboardLayout";
 import { Bot, User, Send, Sparkles, Image, Mic, Paperclip } from "lucide-react";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -69,10 +69,8 @@ const Chat = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 container mx-auto px-4 md:px-6 pt-24 pb-6 flex flex-col">
+    <DashboardLayout>
+      <main className="flex-1 container mx-auto px-4 md:px-6 pt-6 pb-6 flex flex-col">
         {/* Header */}
         <div className="mb-6 animate-fade-in">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">AI Wellness Chat</h1>
@@ -103,16 +101,14 @@ const Chat = () => {
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex gap-3 animate-fade-in ${
-                      message.role === "user" ? "flex-row-reverse" : "flex-row"
-                    }`}
+                    className={`flex gap-3 animate-fade-in ${message.role === "user" ? "flex-row-reverse" : "flex-row"
+                      }`}
                   >
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        message.role === "user"
+                      className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${message.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-gradient-accent text-accent-foreground"
-                      }`}
+                        }`}
                     >
                       {message.role === "user" ? (
                         <User className="w-5 h-5" />
@@ -122,18 +118,16 @@ const Chat = () => {
                     </div>
                     <div className="flex-1 max-w-[80%]">
                       <div
-                        className={`rounded-2xl px-5 py-3 ${
-                          message.role === "user"
+                        className={`rounded-2xl px-5 py-3 ${message.role === "user"
                             ? "bg-primary text-primary-foreground ml-auto"
                             : "bg-card text-card-foreground border border-border shadow-soft"
-                        }`}
+                          }`}
                       >
                         <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                       </div>
                       <div
-                        className={`text-xs text-muted-foreground mt-1 px-2 ${
-                          message.role === "user" ? "text-right" : "text-left"
-                        }`}
+                        className={`text-xs text-muted-foreground mt-1 px-2 ${message.role === "user" ? "text-right" : "text-left"
+                          }`}
                       >
                         {message.timestamp}
                       </div>
@@ -228,7 +222,7 @@ const Chat = () => {
           </Card>
         </div>
       </main>
-    </div>
+    </DashboardLayout>
   );
 };
 
