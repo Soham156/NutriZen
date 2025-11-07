@@ -2,8 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Bot, User, Send, Sparkles, Image, Mic, Paperclip } from "lucide-react";
-import { useState } from "react";
+import { Bot, User, Send, Sparkles, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
@@ -19,7 +19,7 @@ const initialMessages: Message[] = [
     role: "assistant",
     content:
       "Hello! I'm your NutriZen AI wellness assistant. I'm here to help you with meal planning, nutrition advice, and wellness guidance. How can I support your health journey today? 🌱",
-    timestamp: "10:00 AM",
+    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
   },
 ];
 
@@ -30,42 +30,101 @@ const suggestedPrompts = [
   "Help me understand my macros",
 ];
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  // Auto scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isTyping) return;
+
+    const userInput = input.trim();
+    setInput("");
 
     // Add user message
     const userMessage: Message = {
-      id: messages.length + 1,
+      id: Date.now(),
       role: "user",
-      content: input,
+      content: userInput,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setInput("");
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Prepare conversation history (last 10 messages)
+      const conversationHistory = messages.slice(-10).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      // Call the API
+      const response = await fetch(`${API_URL}/chat/message`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userInput,
+          conversationHistory
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to get response');
+      }
+
+      // Add AI response
       const aiMessage: Message = {
-        id: messages.length + 2,
+        id: Date.now() + 1,
         role: "assistant",
-        content:
-          "Great question! Based on your profile and goals, I'd recommend a balanced dinner with lean protein like grilled chicken or salmon, paired with quinoa and roasted vegetables. This combination provides essential nutrients while keeping you within your calorie goals. Would you like me to create a detailed meal plan? 🍽️",
+        content: data.data.response,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
+
       setMessages((prev) => [...prev, aiMessage]);
+    } catch (error: any) {
+      console.error('Chat error:', error);
+
+      // Add error message
+      const errorMessage: Message = {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: "I apologize, but I'm having trouble connecting right now. Please make sure the server is running and try again. 🔄",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      };
+
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handlePromptClick = (prompt: string) => {
     setInput(prompt);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   return (
@@ -74,7 +133,9 @@ const Chat = () => {
         {/* Header */}
         <div className="mb-6 animate-fade-in">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">AI Wellness Chat</h1>
-          <p className="text-muted-foreground">Your 24/7 personal nutrition and wellness assistant</p>
+          <p className="text-muted-foreground">
+            Your 24/7 nutrition assistant
+          </p>
         </div>
 
         {/* Chat Container */}
@@ -89,14 +150,14 @@ const Chat = () => {
                 <div className="font-semibold text-primary-foreground">NutriZen AI Assistant</div>
                 <div className="text-xs text-primary-foreground/80 flex items-center gap-1">
                   <div className="w-2 h-2 rounded-full bg-primary-foreground animate-pulse" />
-                  Online & Ready to Help
+                  Online
                 </div>
               </div>
               <Sparkles className="w-5 h-5 text-primary-foreground animate-pulse-glow" />
             </div>
 
             {/* Messages Area */}
-            <ScrollArea className="flex-1 p-6 bg-gradient-card">
+            <ScrollArea ref={scrollAreaRef} className="flex-1 p-6 bg-gradient-card">
               <div className="space-y-6">
                 {messages.map((message) => (
                   <div
@@ -141,16 +202,9 @@ const Chat = () => {
                       <Bot className="w-5 h-5" />
                     </div>
                     <div className="bg-card border border-border rounded-2xl px-5 py-3 shadow-soft">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                        <div
-                          className="w-2 h-2 rounded-full bg-primary animate-pulse"
-                          style={{ animationDelay: "0.2s" }}
-                        />
-                        <div
-                          className="w-2 h-2 rounded-full bg-primary animate-pulse"
-                          style={{ animationDelay: "0.4s" }}
-                        />
+                      <div className="flex gap-1 items-center">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                        <span className="text-sm text-muted-foreground ml-2">Thinking...</span>
                       </div>
                     </div>
                   </div>
@@ -159,7 +213,7 @@ const Chat = () => {
             </ScrollArea>
 
             {/* Suggested Prompts */}
-            {messages.length === 1 && (
+            {messages.length === 1 && !isTyping && (
               <div className="px-6 py-4 border-t border-border bg-muted/30">
                 <p className="text-sm text-muted-foreground mb-3">Try asking me about:</p>
                 <div className="flex flex-wrap gap-2">
@@ -179,27 +233,15 @@ const Chat = () => {
             {/* Input Area */}
             <CardContent className="p-4 border-t border-border bg-background">
               <div className="flex gap-3 items-end">
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                  <Button size="icon" variant="ghost" className="flex-shrink-0">
-                    <Paperclip className="w-5 h-5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="flex-shrink-0">
-                    <Image className="w-5 h-5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="flex-shrink-0">
-                    <Mic className="w-5 h-5" />
-                  </Button>
-                </div>
-
                 {/* Input */}
                 <div className="flex-1 relative">
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                    onKeyPress={handleKeyPress}
                     placeholder="Ask me anything about nutrition, meals, or wellness..."
                     className="pr-12 h-12 bg-muted border-border"
+                    disabled={isTyping}
                   />
                 </div>
 
@@ -211,7 +253,11 @@ const Chat = () => {
                   size="icon"
                   className="flex-shrink-0 h-12 w-12"
                 >
-                  <Send className="w-5 h-5" />
+                  {isTyping ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
                 </Button>
               </div>
 

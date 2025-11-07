@@ -2,143 +2,174 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Search, Heart, Clock, Flame, Users, Filter, Plus } from "lucide-react";
+import { Search, Heart, Clock, Flame, Users, Filter, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { GenerateRecipeDialog } from "@/components/GenerateRecipeDialog";
+import { RecipeDetailDialog } from "@/components/RecipeDetailDialog";
+import { useToast } from "@/hooks/use-toast";
 
-const recipes = [
-  {
-    id: 1,
-    title: "Protein-Packed Buddha Bowl",
-    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop",
-    author: "Sarah M.",
-    time: "25 min",
-    calories: 450,
-    likes: 234,
-    tags: ["High Protein", "Vegan", "Meal Prep"],
-  },
-  {
-    id: 2,
-    title: "Mediterranean Quinoa Salad",
-    image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&auto=format&fit=crop",
-    author: "Alex K.",
-    time: "15 min",
-    calories: 380,
-    likes: 189,
-    tags: ["Gluten Free", "Quick", "Fresh"],
-  },
-  {
-    id: 3,
-    title: "Grilled Salmon with Asparagus",
-    image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&auto=format&fit=crop",
-    author: "Jamie L.",
-    time: "30 min",
-    calories: 520,
-    likes: 312,
-    tags: ["High Protein", "Omega-3", "Keto"],
-  },
-  {
-    id: 4,
-    title: "Berry Smoothie Bowl",
-    image: "https://images.unsplash.com/photo-1590301157890-4810ed352733?w=600&auto=format&fit=crop",
-    author: "Emma R.",
-    time: "10 min",
-    calories: 320,
-    likes: 456,
-    tags: ["Breakfast", "Antioxidants", "Quick"],
-  },
-  {
-    id: 5,
-    title: "Chicken Stir-Fry Noodles",
-    image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&auto=format&fit=crop",
-    author: "David C.",
-    time: "20 min",
-    calories: 490,
-    likes: 278,
-    tags: ["High Protein", "Asian", "Quick"],
-  },
-  {
-    id: 6,
-    title: "Avocado Toast Deluxe",
-    image: "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=600&auto=format&fit=crop",
-    author: "Lisa W.",
-    time: "8 min",
-    calories: 340,
-    likes: 521,
-    tags: ["Breakfast", "Healthy Fats", "Quick"],
-  },
-  {
-    id: 7,
-    title: "Lentil & Veggie Curry",
-    image: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=600&auto=format&fit=crop",
-    author: "Priya S.",
-    time: "35 min",
-    calories: 410,
-    likes: 195,
-    tags: ["Vegan", "Comfort", "High Fiber"],
-  },
-  {
-    id: 8,
-    title: "Greek Yogurt Parfait",
-    image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&auto=format&fit=crop",
-    author: "Tom H.",
-    time: "5 min",
-    calories: 280,
-    likes: 387,
-    tags: ["Breakfast", "High Protein", "Quick"],
-  },
-  {
-    id: 9,
-    title: "Roasted Veggie Medley",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop",
-    author: "Nina B.",
-    time: "40 min",
-    calories: 220,
-    likes: 156,
-    tags: ["Vegan", "Side Dish", "Low Cal"],
-  },
-];
+interface Recipe {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string;
+  prep_time: number;
+  cook_time: number;
+  servings: number;
+  difficulty: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fats: number;
+  fiber?: number;
+  tags: string[];
+  dietary_type: string;
+  likes_count: number;
+  is_ai_generated: boolean;
+  ingredients: Array<{
+    item: string;
+    amount: string;
+    notes?: string;
+  }>;
+  instructions: Array<{
+    step: number;
+    instruction: string;
+  }>;
+  allergens?: string[];
+  health_benefits?: string[];
+}
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const Recipes = () => {
-  const [likedRecipes, setLikedRecipes] = useState<number[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [likedRecipes, setLikedRecipes] = useState<string[]>([]);
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
 
-  const toggleLike = (id: number) => {
-    setLikedRecipes((prev) =>
-      prev.includes(id) ? prev.filter((recipeId) => recipeId !== id) : [...prev, id]
-    );
+  useEffect(() => {
+    fetchRecipes();
+  }, []);
+
+  const fetchRecipes = async () => {
+    try {
+      const response = await fetch(`${API_URL}/recipes`);
+      const data = await response.json();
+
+      if (data.success) {
+        setRecipes(data.data.recipes);
+      }
+    } catch (error) {
+      console.error('Failed to fetch recipes:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load recipes. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const toggleLike = async (id: string) => {
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+
+    if (!token) {
+      toast({
+        title: "Login Required",
+        description: "Please login to like recipes",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/recipes/${id}/like`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        if (data.data.liked) {
+          setLikedRecipes([...likedRecipes, id]);
+        } else {
+          setLikedRecipes(likedRecipes.filter((recipeId) => recipeId !== id));
+        }
+
+        setRecipes(recipes.map(recipe =>
+          recipe.id === id
+            ? { ...recipe, likes_count: recipe.likes_count + (data.data.liked ? 1 : -1) }
+            : recipe
+        ));
+      }
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+    }
+  };
+
+  const handleRecipeGenerated = (newRecipe: Recipe) => {
+    setRecipes([newRecipe, ...recipes]);
+    toast({
+      title: "Success",
+      description: "Your recipe has been generated and saved!",
+    });
+  };
+
+  const handleViewRecipe = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setShowDetailDialog(true);
+  };
+
+  const filteredRecipes = recipes.filter((recipe) =>
+    recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    recipe.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    recipe.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   return (
     <DashboardLayout>
       <main className="container mx-auto px-4 md:px-6 pt-6 pb-16">
-        {/* Header */}
         <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Community Recipes</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">AI Recipe Collection</h1>
           <p className="text-muted-foreground">
-            Discover and share healthy, delicious meals from our wellness community
+            Discover personalized healthy recipes generated just for you
           </p>
         </div>
 
-        {/* Search and Filters */}
         <div className="mb-8 flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
-              placeholder="Search recipes, ingredients, or authors..."
+              placeholder="Search recipes, ingredients, or tags..."
               className="pl-10 h-12"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <Button variant="outline" size="lg" className="gap-2">
             <Filter className="w-4 h-4" />
             Filters
           </Button>
-          <Button variant="hero" size="lg" className="gap-2">
-            <Plus className="w-4 h-4" />
-            Share Recipe
+          <Button
+            variant="hero"
+            size="lg"
+            className="gap-2"
+            onClick={() => setShowGenerateDialog(true)}
+          >
+            <Sparkles className="w-4 h-4" />
+            Generate Recipe
           </Button>
         </div>
 
-        {/* Popular Tags */}
         <div className="mb-8 flex flex-wrap gap-2 animate-fade-in">
           {["All", "High Protein", "Vegan", "Quick", "Keto", "Breakfast", "Meal Prep"].map((tag) => (
             <Badge
@@ -151,83 +182,147 @@ const Recipes = () => {
           ))}
         </div>
 
-        {/* Pinterest-style Grid */}
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-          {recipes.map((recipe, index) => (
-            <Card
-              key={recipe.id}
-              className="break-inside-avoid shadow-medium border-border/50 hover:shadow-strong transition-all group overflow-hidden animate-fade-in-up"
-              style={{ animationDelay: `${index * 50}ms` }}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <p className="mt-4 text-muted-foreground">Loading delicious recipes...</p>
+          </div>
+        )}
+
+        {!loading && filteredRecipes.length === 0 && (
+          <Card className="p-12 text-center">
+            <Sparkles className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-xl font-semibold mb-2">No recipes yet</h3>
+            <p className="text-muted-foreground mb-6">
+              Be the first to generate an AI-powered recipe!
+            </p>
+            <Button
+              variant="hero"
+              size="lg"
+              className="gap-2"
+              onClick={() => setShowGenerateDialog(true)}
             >
-              <div className="relative overflow-hidden">
-                <img
-                  src={recipe.image}
-                  alt={recipe.title}
-                  className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <button
-                  onClick={() => toggleLike(recipe.id)}
-                  className="absolute top-3 right-3 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
-                >
-                  <Heart
-                    className={`w-5 h-5 ${likedRecipes.includes(recipe.id)
+              <Sparkles className="w-4 h-4" />
+              Generate Your First Recipe
+            </Button>
+          </Card>
+        )}
+
+        {!loading && filteredRecipes.length > 0 && (
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+            {filteredRecipes.map((recipe, index) => (
+              <Card
+                key={recipe.id}
+                className="break-inside-avoid shadow-medium border-border/50 hover:shadow-strong transition-all group overflow-hidden animate-fade-in-up"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="relative overflow-hidden">
+                  <img
+                    src={recipe.image_url}
+                    alt={recipe.title}
+                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <button
+                    onClick={() => toggleLike(recipe.id)}
+                    className="absolute top-3 right-3 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
+                  >
+                    <Heart
+                      className={`w-5 h-5 ${likedRecipes.includes(recipe.id)
                         ? "fill-highlight text-highlight"
                         : "text-muted-foreground"
-                      } transition-colors`}
-                  />
-                </button>
-              </div>
-
-              <CardContent className="p-4 space-y-3">
-                <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
-                  {recipe.title}
-                </h3>
-
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />
-                    <span>{recipe.author}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{recipe.time}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1 text-highlight">
-                    <Flame className="w-4 h-4" />
-                    <span className="font-medium">{recipe.calories} cal</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-muted-foreground">
-                    <Heart className="w-4 h-4" />
-                    <span>{recipe.likes + (likedRecipes.includes(recipe.id) ? 1 : 0)}</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {recipe.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
+                        } transition-colors`}
+                    />
+                  </button>
+                  {recipe.is_ai_generated && (
+                    <Badge className="absolute top-3 left-3 bg-primary/90 backdrop-blur-sm gap-1">
+                      <Sparkles className="w-3 h-3" />
+                      AI Generated
                     </Badge>
-                  ))}
+                  )}
                 </div>
 
-                <Button variant="outline" className="w-full mt-2">
-                  View Recipe
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <CardContent className="p-4 space-y-3">
+                  <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
+                    {recipe.title}
+                  </h3>
 
-        {/* Load More */}
-        <div className="mt-12 text-center">
-          <Button variant="outline" size="lg">
-            Load More Recipes
-          </Button>
-        </div>
+                  {recipe.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {recipe.description}
+                    </p>
+                  )}
+
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{(recipe.prep_time || 0) + (recipe.cook_time || 0)} min</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      <span>{recipe.servings} servings</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1 text-highlight">
+                      <Flame className="w-4 h-4" />
+                      <span className="font-medium">{recipe.calories} cal</span>
+                    </div>
+                    <div className="text-muted-foreground">
+                      <span className="font-medium">{recipe.protein}g</span> protein
+                    </div>
+                    <div className="flex items-center gap-1 text-muted-foreground ml-auto">
+                      <Heart className="w-4 h-4" />
+                      <span>{recipe.likes_count}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {recipe.tags.slice(0, 3).map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                    {recipe.dietary_type && (
+                      <Badge variant="outline" className="text-xs">
+                        {recipe.dietary_type}
+                      </Badge>
+                    )}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    className="w-full mt-2"
+                    onClick={() => handleViewRecipe(recipe)}
+                  >
+                    View Recipe
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {!loading && filteredRecipes.length > 0 && (
+          <div className="mt-12 text-center">
+            <Button variant="outline" size="lg">
+              Load More Recipes
+            </Button>
+          </div>
+        )}
       </main>
+
+      <GenerateRecipeDialog
+        open={showGenerateDialog}
+        onOpenChange={setShowGenerateDialog}
+        onRecipeGenerated={handleRecipeGenerated}
+      />
+
+      <RecipeDetailDialog
+        recipe={selectedRecipe}
+        open={showDetailDialog}
+        onOpenChange={setShowDetailDialog}
+      />
     </DashboardLayout>
   );
 };

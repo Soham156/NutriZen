@@ -7,6 +7,7 @@ import {
     Settings,
     LogOut,
     Leaf,
+    Camera,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -42,6 +43,7 @@ const navigation = [
     { name: "Analytics", href: "/analytics", icon: BarChart3 },
     { name: "Recipes", href: "/recipes", icon: BookOpen },
     { name: "AI Chat", href: "/chat", icon: MessageSquare },
+    { name: "Image Recognition", href: "/image-recognition", icon: Camera },
 ];
 
 interface DashboardLayoutProps {
@@ -189,7 +191,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 </span>
                             </div>
                         </div>
-                        <div className="flex-1 overflow-auto">{children}</div>
+                        <div className="flex-1 overflow-auto p-4 md:p-6">{children}</div>
                     </SidebarInset>
                 </div>
             </SidebarProvider>
