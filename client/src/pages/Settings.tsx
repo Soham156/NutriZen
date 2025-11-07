@@ -24,6 +24,8 @@ import {
     Loader2,
 } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 interface UserData {
     id: string;
     email: string;
@@ -68,7 +70,7 @@ export default function Settings() {
         try {
             const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
 
-            const response = await fetch('http://localhost:5000/api/user/health-profile', {
+            const response = await fetch(`${API_URL}/user/health-profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },

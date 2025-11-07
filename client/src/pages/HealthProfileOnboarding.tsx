@@ -22,6 +22,8 @@ import {
     Leaf,
 } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 interface HealthProfileData {
     // Step 1: Basic Info
     age: string;
@@ -130,7 +132,7 @@ export default function HealthProfileOnboarding() {
             const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
 
             // Save health profile
-            const response = await fetch('http://localhost:5000/api/user/health-profile', {
+            const response = await fetch(`${API_URL}/user/health-profile`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -203,18 +205,18 @@ export default function HealthProfileOnboarding() {
                         <div
                             key={index}
                             className={`flex flex-col items-center ${index + 1 === currentStep
-                                    ? 'text-primary'
-                                    : index + 1 < currentStep
-                                        ? 'text-green-500'
-                                        : 'text-muted-foreground'
+                                ? 'text-primary'
+                                : index + 1 < currentStep
+                                    ? 'text-green-500'
+                                    : 'text-muted-foreground'
                                 }`}
                         >
                             <div
                                 className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 transition-all ${index + 1 === currentStep
-                                        ? 'bg-primary text-primary-foreground scale-110'
-                                        : index + 1 < currentStep
-                                            ? 'bg-green-500 text-white'
-                                            : 'bg-muted'
+                                    ? 'bg-primary text-primary-foreground scale-110'
+                                    : index + 1 < currentStep
+                                        ? 'bg-green-500 text-white'
+                                        : 'bg-muted'
                                     }`}
                             >
                                 {index + 1 < currentStep ? (
@@ -412,8 +414,8 @@ export default function HealthProfileOnboarding() {
                                                     })
                                                 }
                                                 className={`p-4 rounded-xl border-2 transition-all text-left ${profileData.healthConditions.includes(condition.id)
-                                                        ? 'border-primary bg-primary/10'
-                                                        : 'border-border hover:border-primary/50'
+                                                    ? 'border-primary bg-primary/10'
+                                                    : 'border-border hover:border-primary/50'
                                                     }`}
                                             >
                                                 <div className="text-2xl mb-2">{condition.icon}</div>
@@ -512,8 +514,8 @@ export default function HealthProfileOnboarding() {
                                                     })
                                                 }
                                                 className={`p-3 rounded-xl border-2 transition-all ${profileData.allergens.includes(allergen.id)
-                                                        ? 'border-red-500 bg-red-500/10'
-                                                        : 'border-border hover:border-red-500/50'
+                                                    ? 'border-red-500 bg-red-500/10'
+                                                    : 'border-border hover:border-red-500/50'
                                                     }`}
                                             >
                                                 <div className="text-2xl mb-1">{allergen.icon}</div>
@@ -539,8 +541,8 @@ export default function HealthProfileOnboarding() {
                                                     })
                                                 }
                                                 className={`p-4 rounded-xl border-2 transition-all text-left ${profileData.dietaryRestrictions.includes(diet.id)
-                                                        ? 'border-primary bg-primary/10'
-                                                        : 'border-border hover:border-primary/50'
+                                                    ? 'border-primary bg-primary/10'
+                                                    : 'border-border hover:border-primary/50'
                                                     }`}
                                             >
                                                 <div className="flex items-center gap-3">

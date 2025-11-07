@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import DashboardLayout from '@/components/DashboardLayout';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 interface FoodItem {
     name: string;
     confidence: number;
@@ -103,7 +105,7 @@ export default function ImageRecognition() {
                 return;
             }
 
-            const response = await fetch('http://localhost:5000/api/image-recognition/analyze', {
+            const response = await fetch(`${API_URL}/image-recognition/analyze`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -121,7 +123,7 @@ export default function ImageRecognition() {
 
             // Get similar recipes
             if (data.data && data.data.ingredients && data.data.ingredients.length > 0) {
-                const recipesResponse = await fetch('http://localhost:5000/api/image-recognition/similar-recipes', {
+                const recipesResponse = await fetch(`${API_URL}/image-recognition/similar-recipes`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,

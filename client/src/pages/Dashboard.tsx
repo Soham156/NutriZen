@@ -25,6 +25,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const Dashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -44,7 +46,7 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/dashboard', {
+      const response = await fetch(`${API_URL}/dashboard`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -76,7 +78,7 @@ const Dashboard = () => {
 
     try {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/dashboard/mood', {
+      const response = await fetch(`${API_URL}/dashboard/mood`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -104,7 +106,7 @@ const Dashboard = () => {
   const handleLogWater = async () => {
     try {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/dashboard/water', {
+      const response = await fetch(`${API_URL}/dashboard/water`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -132,7 +134,7 @@ const Dashboard = () => {
   const handleAddMeal = async () => {
     try {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/dashboard/meal', {
+      const response = await fetch(`${API_URL}/dashboard/meal`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -175,7 +177,7 @@ const Dashboard = () => {
   const handleDeleteMeal = async (mealId: number) => {
     try {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/dashboard/meal/${mealId}`, {
+      const response = await fetch(`${API_URL}/dashboard/meal/${mealId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -572,8 +574,8 @@ const Dashboard = () => {
                     <button
                       key={glass}
                       className={`aspect-square rounded-lg border-2 flex items-center justify-center transition-all ${glass <= waterGlasses
-                          ? "border-accent bg-accent/20 hover:bg-accent/30"
-                          : "border-border hover:border-accent/50"
+                        ? "border-accent bg-accent/20 hover:bg-accent/30"
+                        : "border-border hover:border-accent/50"
                         }`}
                     >
                       <Droplets
