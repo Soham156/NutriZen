@@ -32,6 +32,24 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(cookieParser()); // Parse cookies
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'NutriZen API Server',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      health: '/health',
+      auth: '/api/auth',
+      user: '/api/user',
+      dashboard: '/api/dashboard',
+      recipes: '/api/recipes',
+      chat: '/api/chat',
+      imageRecognition: '/api/image-recognition'
+    }
+  });
+});
+
 // Routes
 app.use('/health', healthRouter);
 app.use('/api/auth', authRouter);
