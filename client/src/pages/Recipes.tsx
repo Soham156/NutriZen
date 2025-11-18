@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { GenerateRecipeDialog } from "@/components/GenerateRecipeDialog";
 import { RecipeDetailDialog } from "@/components/RecipeDetailDialog";
 import { useToast } from "@/hooks/use-toast";
+import { defaultRecipes } from "@/data/defaultRecipes";
 
 interface Recipe {
   id: string;
@@ -61,16 +62,18 @@ const Recipes = () => {
       const response = await fetch(`${API_URL}/recipes`);
       const data = await response.json();
 
-      if (data.success) {
-        setRecipes(data.data.recipes);
+      if (data.success && data.data.recipes.length > 0) {
+        // Combine API recipes with default recipes
+        const allRecipes = [...data.data.recipes, ...(defaultRecipes as Recipe[])];
+        setRecipes(allRecipes);
+      } else {
+        // Use default recipes if no recipes from API
+        setRecipes(defaultRecipes as Recipe[]);
       }
     } catch (error) {
       console.error('Failed to fetch recipes:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load recipes. Please try again.",
-        variant: "destructive",
-      });
+      // Use default recipes on error
+      setRecipes(defaultRecipes as Recipe[]);
     } finally {
       setLoading(false);
     }

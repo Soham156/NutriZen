@@ -160,3 +160,216 @@ All colors MUST be HSL.
 .animate-slide-in-right {
   animation: slide-in-right 0.5s ease-out;
 }
+
+/* Celebration Character Animations */
+.celebration-character {
+  position: relative;
+  animation: character-bounce 0.6s ease-in-out infinite;
+}
+
+@keyframes character-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-30px) scale(1.05);
+  }
+}
+
+.character-body {
+  position: relative;
+  width: 120px;
+  height: 180px;
+}
+
+.character-head {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: head-rotate 2s ease-in-out infinite;
+  box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+}
+
+@keyframes head-rotate {
+  0%, 100% {
+    transform: translateX(-50%) rotate(-5deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(5deg);
+  }
+}
+
+.character-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.eye {
+  width: 12px;
+  height: 16px;
+  background: #000;
+  border-radius: 50%;
+  position: absolute;
+  top: 30px;
+  animation: eye-blink 3s ease-in-out infinite;
+}
+
+@keyframes eye-blink {
+  0%, 90%, 100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+
+.eye-left {
+  left: 20px;
+}
+
+.eye-right {
+  right: 20px;
+}
+
+.mouth {
+  width: 40px;
+  height: 20px;
+  border: 3px solid #000;
+  border-top: none;
+  border-radius: 0 0 40px 40px;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: mouth-smile 1s ease-in-out infinite;
+}
+
+@keyframes mouth-smile {
+  0%, 100% {
+    width: 40px;
+  }
+  50% {
+    width: 50px;
+  }
+}
+
+.character-torso {
+  width: 60px;
+  height: 70px;
+  background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+  border-radius: 30px 30px 20px 20px;
+  position: absolute;
+  top: 75px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+}
+
+.character-arm {
+  width: 20px;
+  height: 60px;
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  border-radius: 15px;
+  position: absolute;
+  top: 80px;
+}
+
+.arm-left {
+  left: 0;
+  transform-origin: top center;
+  animation: arm-wave-left 1s ease-in-out infinite;
+}
+
+.arm-right {
+  right: 0;
+  transform-origin: top center;
+  animation: arm-wave-right 1s ease-in-out infinite;
+}
+
+@keyframes arm-wave-left {
+  0%, 100% {
+    transform: rotate(-30deg);
+  }
+  50% {
+    transform: rotate(-60deg);
+  }
+}
+
+@keyframes arm-wave-right {
+  0%, 100% {
+    transform: rotate(30deg);
+  }
+  50% {
+    transform: rotate(60deg);
+  }
+}
+
+.character-leg {
+  width: 18px;
+  height: 50px;
+  background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+  border-radius: 15px;
+  position: absolute;
+  bottom: 0;
+}
+
+.leg-left {
+  left: 30px;
+  animation: leg-dance-left 0.6s ease-in-out infinite;
+}
+
+.leg-right {
+  right: 30px;
+  animation: leg-dance-right 0.6s ease-in-out infinite;
+}
+
+@keyframes leg-dance-left {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-15deg);
+  }
+}
+
+@keyframes leg-dance-right {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(15deg);
+  }
+}
+
+/* Confetti Animation */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  opacity: 1;
+  animation: confetti-fall 3s linear forwards;
+}
+
+@keyframes confetti-fall {
+  to {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}

@@ -56,6 +56,7 @@ export default function HealthProfileOnboarding() {
     const navigate = useNavigate();
     const { toast } = useToast();
     const [currentStep, setCurrentStep] = useState(1);
+    const [showCelebration, setShowCelebration] = useState(false);
     const totalSteps = 4;
 
     const [profileData, setProfileData] = useState<HealthProfileData>({
@@ -143,12 +144,18 @@ export default function HealthProfileOnboarding() {
 
             if (!response.ok) throw new Error('Failed to save profile');
 
+            // Show celebration animation
+            setShowCelebration(true);
+
             toast({
                 title: 'Profile Complete! 🎉',
                 description: 'Your health profile has been saved successfully.',
             });
 
-            navigate('/dashboard');
+            // Navigate after animation
+            setTimeout(() => {
+                navigate('/dashboard');
+            }, 3000);
         } catch (error) {
             toast({
                 variant: 'destructive',
@@ -707,6 +714,59 @@ export default function HealthProfileOnboarding() {
                     </button>
                 </div>
             </div>
+
+            {/* Celebration Character Animation */}
+            {showCelebration && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+                    <div className="relative">
+                        {/* Dancing Character */}
+                        <div className="celebration-character">
+                            <div className="character-body">
+                                {/* Head */}
+                                <div className="character-head">
+                                    <div className="character-face">
+                                        <div className="eye eye-left"></div>
+                                        <div className="eye eye-right"></div>
+                                        <div className="mouth"></div>
+                                    </div>
+                                </div>
+
+                                {/* Body */}
+                                <div className="character-torso"></div>
+
+                                {/* Arms */}
+                                <div className="character-arm arm-left"></div>
+                                <div className="character-arm arm-right"></div>
+
+                                {/* Legs */}
+                                <div className="character-leg leg-left"></div>
+                                <div className="character-leg leg-right"></div>
+                            </div>
+                        </div>
+
+                        {/* Celebration Text */}
+                        <div className="text-center mt-8 text-white animate-bounce">
+                            <h2 className="text-4xl font-bold mb-2">🎉 Awesome! 🎉</h2>
+                            <p className="text-xl">Your health journey begins now!</p>
+                        </div>
+
+                        {/* Confetti */}
+                        <div className="confetti-container">
+                            {[...Array(50)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="confetti"
+                                    style={{
+                                        left: `${Math.random() * 100}%`,
+                                        animationDelay: `${Math.random() * 3}s`,
+                                        backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd'][Math.floor(Math.random() * 5)]
+                                    }}
+                                ></div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
