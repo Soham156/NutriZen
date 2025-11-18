@@ -41,7 +41,7 @@ interface Recipe {
   health_benefits?: string[];
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://nutri-zen-server.vercel.app/api';
 
 const Recipes = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
