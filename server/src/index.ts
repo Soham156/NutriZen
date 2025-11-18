@@ -30,49 +30,27 @@ const allowedOrigins = [
   CLIENT_URL
 ].filter(Boolean);
 
-console.log('🌐 Allowed CORS origins:', allowedOrigins);
-console.log('🔑 CLIENT_URL:', CLIENT_URL);
-
 // Middleware
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-})); // Security headers
+app.use(helmet()); // Security headers
 app.use(cors({
   origin: (origin, callback) => {
-    console.log('📡 CORS request from origin:', origin);
-    
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) {
-      console.log('✅ Allowing request with no origin');
-      return callback(null, true);
-    }
+    if (!origin) return callback(null, true);
     
     if (allowedOrigins.includes(origin)) {
-      console.log('✅ Origin allowed:', origin);
       callback(null, true);
     } else {
-      console.log('❌ Origin blocked:', origin);
-      // In production, allow Vercel preview deployments
-      if (origin.includes('vercel.app')) {
-        console.log('✅ Allowing Vercel deployment:', origin);
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Set-Cookie']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(morgan('dev')); // Logging
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(cookieParser()); // Parse cookies
-
-// Handle preflight requests
-app.options('*', cors());
 
 // Root route
 app.get('/', (req, res) => {
@@ -107,9 +85,7 @@ app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📱 Client URL: ${CLIENT_URL}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  // Server started
 });
 
 export default app;
