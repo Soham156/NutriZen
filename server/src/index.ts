@@ -19,13 +19,14 @@ dotenv.config();
 
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const CLIENT_URL = process.env.CLIENT_URL || 'https://nutri-zen.vercel.app';
 
 // Allow multiple origins for CORS
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
   'https://nutri-zen.vercel.app',
+  'https://nutrizen.vercel.app',
   CLIENT_URL
 ].filter(Boolean);
 
@@ -42,7 +43,9 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(morgan('dev')); // Logging
 app.use(express.json()); // Parse JSON bodies
